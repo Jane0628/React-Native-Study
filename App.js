@@ -9,7 +9,11 @@ export default function App() {
   const [todoGoals, setTodoGoals] = useState([]);
 
   // 할 일 추가 모달을 띄워주는 함수
-  const modalHandler = () => {
+  const modalOnHandler = () => {
+    setModalOn(true);
+  }
+
+  const modalOffHandler = () => {
     setModalOn(true);
   }
 
@@ -20,6 +24,7 @@ export default function App() {
       ...currentTodoGoals,
       { text: enteredGoalText, id: Math.random().toString() },
     ]);
+    modalOffHandler();
   }
 
   const deleteGoalHandler = (id) => {
@@ -31,7 +36,10 @@ export default function App() {
   return (
     <View style={styles.appContainer}>
       <Button title="할 일 추가하기!" color={"#5e0acc"} onPress={modalHandler} />
-      {modalOn && <GoalInput onAddGoal={addGoalHandler} />}
+      <GoalInput
+        visible={modalOnHandler}
+        onAddGoal={addGoalHandler}
+        modalOff={modalOffHandler} />
       <View style={styles.goalsContainer}>
         {/* ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링합니다.
             이로 인해, 성능의 저하가 발생할 수 있습니다.
