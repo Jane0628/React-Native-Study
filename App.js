@@ -2,39 +2,36 @@ import { useState } from "react";
 import { Button, FlatList, StyleSheet, TextInput, View } from "react-native";
 
 import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
 export default function App() {
-  const [enteredGoalText, setEnteredGoalText] = useState("");
+  const [modalOn, setModalOn] = useState(false);
   const [todoGoals, setTodoGoals] = useState([]);
 
-  //사용자가 내용을 입력할 때 해당 입력값을 가져오는 함수
-  const goalInputHandler = (enteredText) => {
-    // console.log(enteredText);
-    setEnteredGoalText(enteredText);
-  };
+  // 할 일 추가 모달을 띄워주는 함수
+  const modalHandler = () => {
+    setModalOn(true);
+  }
 
-  //버튼을 누르면 할 일 목록을 추가하는 함수
-  const addGoalHandler = () => {
-    // console.log(enteredGoalText);
-
-    //useState로 관리하는 상태 변수의 setter 안에 콜백 함수를 작성하면,
-    //그 콜백 함수의 매개값은 항상 해당 상태 변수의 최신 값이 전달됩니다.
+  // 버튼을 누르면 할 일 목록을 추가하는 함수
+  const addGoalHandler = (enteredGoalText) => {
+    // useState로 관리하는 상태 변수의 setter 안에 콜백 함수를 작성하면, 그 콜백 함수의 매개값은 항상 해당 상태 변수의 최신값이 전달됩니다.
     setTodoGoals((currentTodoGoals) => [
       ...currentTodoGoals,
       { text: enteredGoalText, id: Math.random().toString() },
     ]);
-  };
+  }
+
+  const deleteGoalHandler = (id) => {
+    setTodoGoals(currentTodoGoals => {
+      return currentTodoGoals.filter((goal) => goal.id !== id);
+    });
+  }
 
   return (
     <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder='할 일을 입력하세요!'
-          onChangeText={goalInputHandler}
-        />
-        <Button title='할 일 추가하기' onPress={addGoalHandler} />
-      </View>
+      <Button title="할 일 추가하기!" color={"#5e0acc"} onPress={modalHandler} />
+      {modalOn && <GoalInput onAddGoal={addGoalHandler} />}
       <View style={styles.goalsContainer}>
         {/* ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링합니다.
             이로 인해, 성능의 저하가 발생할 수 있습니다.
@@ -44,11 +41,16 @@ export default function App() {
         <FlatList
           data={todoGoals}
           renderItem={(itemData) => {
-            return <GoalItem text={itemData.item.text} />;
+            return (
+              <GoalItem
+                text={itemData.item.text}
+                id={itemData.item.id}
+                onDeleteItem={deleteGoalHandler} />
+            );
           }}
           keyExtractor={(item, index) => {
-            // console.log("item: ", item);
-            // console.log("index: ", index);
+            //  console.log("item: ", item);
+            //  console.log("index: ", index);
             return item.id;
           }}
           alwaysBounceVertical={false}
